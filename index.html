@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Efeito de Neve com Música</title>
+    <title>nely luv emilly</title>
     <style>
         * {
             margin: 0;
@@ -39,44 +39,57 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 25px;
+            gap: 40px;
         }
 
-        /* Estilo de cada personagem (mantém os pixels nítidos) */
+        /* Bonecos maiores com visualização nítida em pixel art */
         .character {
-            width: 130px;
+            width: 220px;
             height: auto;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
-            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.25));
         }
 
-        /* Linha e coração conectando os dois */
-        .connection-line {
+        /* Container da conexão curvada */
+        .connection-wrapper {
+            position: relative;
+            width: 180px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            width: 100px;
         }
 
-        .connection-line::before {
-            content: '';
+        /* SVG para desenhar a linha curvada em arco */
+        .curved-svg {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 2px;
-            border-top: 2px dashed rgba(255, 255, 255, 0.85);
-            z-index: 1;
+            height: 100%;
+            overflow: visible;
         }
 
+        .curved-line {
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 3;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+        }
+
+        /* Coração branco no topo do arco */
         .heart {
-            position: relative;
+            position: absolute;
+            top: 10px;
             z-index: 2;
             color: #ffffff;
-            font-size: 24px;
+            font-size: 30px;
             background-color: #000000;
-            padding: 0 6px;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            padding: 0 8px;
+            border-radius: 50%;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
             animation: pulse 1.5s infinite ease-in-out;
         }
 
@@ -89,7 +102,7 @@
             }
         }
 
-        /* Estilização sutil para o player de áudio */
+        /* Estilização para o player de áudio */
         .audio-container {
             position: fixed;
             bottom: 20px;
@@ -114,20 +127,24 @@
     <!-- Fundo de neve -->
     <canvas id="snowCanvas"></canvas>
 
-    <!-- Bonequinhos centralizados com conexão de coração -->
+    <!-- Bonequinhos centralizados -->
     <div class="couple-container">
-        <!-- Substitua 'boy.png' pelo nome da imagem do garoto -->
+        <!-- Foto do rapaz -->
         <img src="boy.png" alt="Personagem Masculino" class="character">
         
-        <div class="connection-line">
+        <!-- Linha curvada e coração -->
+        <div class="connection-wrapper">
+            <svg class="curved-svg" viewBox="0 0 180 100">
+                <path d="M 10,80 Q 90,-10 170,80" class="curved-line" />
+            </svg>
             <span class="heart">♥</span>
         </div>
         
-        <!-- Substitua 'girl.png' pelo nome da imagem da garota -->
+        <!-- Foto da moça -->
         <img src="girl.png" alt="Personagem Feminino" class="character">
     </div>
 
-    <!-- Player de música configurado para music.mp3 -->
+    <!-- Player de música -->
     <div class="audio-container">
         <audio id="bgMusic" src="music.mp3" autoplay loop controls></audio>
     </div>
@@ -146,16 +163,16 @@
 
         // Configuração dos flocos de neve
         const snowflakes = [];
-        const maxSnowflakes = 120; // Quantidade de flocos
+        const maxSnowflakes = 120;
 
         for (let i = 0; i < maxSnowflakes; i++) {
             snowflakes.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                radius: Math.random() * 3 + 1,     // Tamanho entre 1px e 4px
-                speed: Math.random() * 1.5 + 0.5,  // Velocidade de queda
-                wind: Math.random() * 0.5 - 0.25,  // Movimento leve para os lados
-                opacity: Math.random() * 0.7 + 0.3 // Transparência variável
+                radius: Math.random() * 3 + 1,
+                speed: Math.random() * 1.5 + 0.5,
+                wind: Math.random() * 0.5 - 0.25,
+                opacity: Math.random() * 0.7 + 0.3
             });
         }
 
@@ -174,7 +191,7 @@
                 flake.y += flake.speed;
                 flake.x += flake.wind;
 
-                // Reposicionar o floco se ele sair da tela
+                // Reposicionar o floco se sair da tela
                 if (flake.y > canvas.height) {
                     flake.y = -10;
                     flake.x = Math.random() * canvas.width;
