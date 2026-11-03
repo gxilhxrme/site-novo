@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efeito de Neve com Música</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+        }
+
+        /* Canvas da neve cobrindo toda a tela */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Estilização sutil para o player de áudio (caso queira visível) */
+        .audio-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .audio-container:hover {
+            opacity: 1;
+        }
+
+        audio {
+            height: 35px;
+            width: 240px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fundo de neve -->
+    <canvas id="snowCanvas"></canvas>
+
+    <!-- Player de música configurado para music.mp3 -->
+    <div class="audio-container">
+        <audio id="bgMusic" src="music.mp3" autoplay loop controls></audio>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajustar o tamanho do canvas para a tela toda
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Configuração dos flocos de neve
+        const snowflakes = [];
+        const maxSnowflakes = 120; // Quantidade de flocos
+
+        for (let i = 0; i < maxSnowflakes; i++) {
+            snowflakes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 3 + 1,    // Tamanho entre 1px e 4px
+                speed: Math.random() * 1.5 + 0.5,  // Velocidade de queda
+                wind: Math.random() * 0.5 - 0.25,  // Movimento leve para os lados
+                opacity: Math.random() * 0.7 + 0.3 // Transparência variável
+            });
+        }
+
+        // Função para desenhar e animar a neve
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+
+            for (let flake of snowflakes) {
+                ctx.globalAlpha = flake.opacity;
+                ctx.beginPath();
+                ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2, true);
+                ctx.fill();
+
+                // Atualizar posição
+                flake.y += flake.speed;
+                flake.x += flake.wind;
+
+                // Reposicionar o floco se ele sair da tela
+                if (flake.y > canvas.height) {
+                    flake.y = -10;
+                    flake.x = Math.random() * canvas.width;
+                }
+
+                if (flake.x > canvas.width || flake.x < 0) {
+                    flake.x = Math.random() * canvas.width;
+                }
+            }
+
+            requestAnimationFrame(drawSnow);
+        }
+
+        drawSnow();
+
+        /* Nota sobre autoplay: Alguns navegadores modernos bloqueiam o autoplay 
+           com áudio se o usuário não interagir com a página primeiro. 
+           O atributo controls foi mantido para facilitar o início caso isso ocorra. */
+    </script>
+</body>
+</html>
