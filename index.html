@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>nely luv emilly</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Efeito de Neve com Música</title>
     <style>
         * {
             margin: 0;
@@ -15,6 +15,7 @@
             background-color: #000000;
             overflow: hidden;
             height: 100vh;
+            width: 100vw;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -32,36 +33,42 @@
             z-index: 1;
         }
 
-        /* Container centralizado para os dois bonecos */
+        /* Container principal centralizado e adaptável */
         .couple-container {
             position: relative;
             z-index: 5;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 40px;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 10px;
         }
 
-        /* Bonecos maiores com visualização nítida em pixel art */
+        /* Ajuste responsivo dos bonecos para celular */
         .character {
-            width: 220px;
+            width: 40vw;
+            max-width: 200px;
             height: auto;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.25));
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
+            flex-shrink: 0;
         }
 
-        /* Container da conexão curvada */
+        /* Container flexível da linha curvada */
         .connection-wrapper {
             position: relative;
-            width: 180px;
-            height: 100px;
+            width: 25vw;
+            max-width: 140px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 -15px; /* Sobrepõe levemente para apontar bem nos dois */
         }
 
-        /* SVG para desenhar a linha curvada em arco */
+        /* SVG da linha pontilhada curvada ligando os dois */
         .curved-svg {
             position: absolute;
             top: 0;
@@ -76,20 +83,21 @@
             stroke: #ffffff;
             stroke-width: 3;
             stroke-linecap: round;
+            stroke-dasharray: 6 4; /* Efeito pontilhado refinado */
             filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
         }
 
-        /* Coração branco no topo do arco */
+        /* Coração branco flutuante no topo da curva */
         .heart {
             position: absolute;
-            top: 10px;
+            top: -5px;
             z-index: 2;
             color: #ffffff;
-            font-size: 30px;
+            font-size: 22px;
             background-color: #000000;
-            padding: 0 8px;
+            padding: 0 6px;
             border-radius: 50%;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
             animation: pulse 1.5s infinite ease-in-out;
         }
 
@@ -102,13 +110,14 @@
             }
         }
 
-        /* Estilização para o player de áudio */
+        /* Player de áudio adaptado para telas mobile */
         .audio-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 10;
-            opacity: 0.7;
+            opacity: 0.85;
             transition: opacity 0.3s ease;
         }
 
@@ -118,7 +127,8 @@
 
         audio {
             height: 35px;
-            width: 240px;
+            width: 260px;
+            max-width: 85vw;
         }
     </style>
 </head>
@@ -127,24 +137,25 @@
     <!-- Fundo de neve -->
     <canvas id="snowCanvas"></canvas>
 
-    <!-- Bonequinhos centralizados -->
+    <!-- Estrutura central para celulares -->
     <div class="couple-container">
-        <!-- Foto do rapaz -->
+        <!-- Garoto -->
         <img src="boy.png" alt="Personagem Masculino" class="character">
         
-        <!-- Linha curvada e coração -->
+        <!-- Linha de conexão curvada indicando ambos -->
         <div class="connection-wrapper">
-            <svg class="curved-svg" viewBox="0 0 180 100">
-                <path d="M 10,80 Q 90,-10 170,80" class="curved-line" />
+            <svg class="curved-svg" viewBox="0 0 140 70">
+                <!-- Arco curvado apontando de um boneco para o outro -->
+                <path d="M 5,55 Q 70,-15 135,55" class="curved-line" />
             </svg>
             <span class="heart">♥</span>
         </div>
         
-        <!-- Foto da moça -->
+        <!-- Garota -->
         <img src="girl.png" alt="Personagem Feminino" class="character">
     </div>
 
-    <!-- Player de música -->
+    <!-- Player de música centralizado na parte inferior -->
     <div class="audio-container">
         <audio id="bgMusic" src="music.mp3" autoplay loop controls></audio>
     </div>
@@ -153,7 +164,6 @@
         const canvas = document.getElementById('snowCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Ajustar o tamanho do canvas para a tela toda
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -161,9 +171,9 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Configuração dos flocos de neve
+        // Quantidade de neve ajustada para não travar em celulares
         const snowflakes = [];
-        const maxSnowflakes = 120;
+        const maxSnowflakes = 80;
 
         for (let i = 0; i < maxSnowflakes; i++) {
             snowflakes.push({
@@ -176,7 +186,6 @@
             });
         }
 
-        // Função para desenhar e animar a neve
         function drawSnow() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#ffffff';
@@ -187,11 +196,9 @@
                 ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2, true);
                 ctx.fill();
 
-                // Atualizar posição
                 flake.y += flake.speed;
                 flake.x += flake.wind;
 
-                // Reposicionar o floco se sair da tela
                 if (flake.y > canvas.height) {
                     flake.y = -10;
                     flake.x = Math.random() * canvas.width;
