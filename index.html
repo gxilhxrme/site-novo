@@ -32,7 +32,64 @@
             z-index: 1;
         }
 
-        /* Estilização sutil para o player de áudio (caso queira visível) */
+        /* Container centralizado para os dois bonecos */
+        .couple-container {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        /* Estilo de cada personagem (mantém os pixels nítidos) */
+        .character {
+            width: 130px;
+            height: auto;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
+        }
+
+        /* Linha e coração conectando os dois */
+        .connection-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100px;
+        }
+
+        .connection-line::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            border-top: 2px dashed rgba(255, 255, 255, 0.85);
+            z-index: 1;
+        }
+
+        .heart {
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+            font-size: 24px;
+            background-color: #000000;
+            padding: 0 6px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+
+        /* Estilização sutil para o player de áudio */
         .audio-container {
             position: fixed;
             bottom: 20px;
@@ -56,6 +113,19 @@
 
     <!-- Fundo de neve -->
     <canvas id="snowCanvas"></canvas>
+
+    <!-- Bonequinhos centralizados com conexão de coração -->
+    <div class="couple-container">
+        <!-- Substitua 'boy.png' pelo nome da imagem do garoto -->
+        <img src="boy.png" alt="Personagem Masculino" class="character">
+        
+        <div class="connection-line">
+            <span class="heart">♥</span>
+        </div>
+        
+        <!-- Substitua 'girl.png' pelo nome da imagem da garota -->
+        <img src="girl.png" alt="Personagem Feminino" class="character">
+    </div>
 
     <!-- Player de música configurado para music.mp3 -->
     <div class="audio-container">
@@ -82,7 +152,7 @@
             snowflakes.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                radius: Math.random() * 3 + 1,    // Tamanho entre 1px e 4px
+                radius: Math.random() * 3 + 1,     // Tamanho entre 1px e 4px
                 speed: Math.random() * 1.5 + 0.5,  // Velocidade de queda
                 wind: Math.random() * 0.5 - 0.25,  // Movimento leve para os lados
                 opacity: Math.random() * 0.7 + 0.3 // Transparência variável
@@ -119,10 +189,6 @@
         }
 
         drawSnow();
-
-        /* Nota sobre autoplay: Alguns navegadores modernos bloqueiam o autoplay 
-           com áudio se o usuário não interagir com a página primeiro. 
-           O atributo controls foi mantido para facilitar o início caso isso ocorra. */
     </script>
 </body>
 </html>
