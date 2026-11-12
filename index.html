@@ -48,15 +48,16 @@
         const SUPABASE_ANON_KEY = ' SUA_SUPABASE_ANON_KEY';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function loginWithDiscord() {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'discord',
-                options: {
-                    redirectTo: window.location.origin
-                }
-            });
-            if (error) alert('Erro ao entrar: ' + error.message);
+async function loginWithDiscord() {
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+            // window.location.origin pega automaticamente a URL da Vercel ou seu domínio próprio
+            redirectTo: window.location.origin
         }
+    });
+    if (error) alert('Erro ao entrar: ' + error.message);
+}
 
         async function handleAuthCallback() {
             // Verifica se o usuário acabou de voltar do login do Discord
