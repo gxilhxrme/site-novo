@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vnzz viado</title>
+    <title>Mural de Contas</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -13,22 +13,22 @@
 </head>
 <body class="bg-black text-white min-h-screen font-sans antialiased selection:bg-zinc-800 selection:text-white">
 
-    <main class="max-w-5xl mx-auto px-4 py-16">
+    <main class="max-w-4xl mx-auto px-4 py-16">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-12">
             <div>
                 <h1 class="text-4xl font-extrabold tracking-tight mb-2 text-white">Mural de Contas</h1>
                 <p class="text-zinc-400 text-base">Contas verificadas via Discord.</p>
             </div>
             <div class="flex items-center gap-3">
-                <button id="configBtn" onclick="openBadgeModal()" class="hidden bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-4 py-3 rounded-2xl font-medium text-sm transition-all shadow-lg items-center gap-2 cursor-pointer backdrop-blur-md">
+                <button id="configBtn" onclick="openBadgeModal()" class="hidden bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-4 py-3 rounded-2xl font-medium text-sm transition-all shadow-lg items-center gap-2 cursor-pointer backdrop-blur-md">
                     <i class="fa-solid fa-gear"></i> Escolher Badges
                 </button>
             </div>
         </div>
 
-        <!-- Grid com cards maiores -->
-        <div id="accountsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <p class="text-zinc-600 col-span-2 text-center py-12">Carregando mural...</p>
+        <!-- Grid de cards estilo banner horizontal -->
+        <div id="accountsGrid" class="grid grid-cols-1 gap-4">
+            <p class="text-zinc-600 text-center py-12">Carregando mural...</p>
         </div>
     </main>
 
@@ -169,14 +169,14 @@
                 .order('created_at', { ascending: false });
 
             if (error) {
-                grid.innerHTML = `<p class="text-red-500 col-span-2 text-center py-4">Erro ao carregar contas: ${error.message}</p>`;
+                grid.innerHTML = `<p class="text-red-500 text-center py-4">Erro ao carregar contas: ${error.message}</p>`;
                 return;
             }
 
             grid.innerHTML = '';
             
             if (!accounts || accounts.length === 0) {
-                grid.innerHTML = '<p class="text-zinc-600 col-span-2 text-center py-12">Nenhuma conta verificada ainda.</p>';
+                grid.innerHTML = '<p class="text-zinc-600 text-center py-12">Nenhuma conta verificada ainda.</p>';
                 return;
             }
 
@@ -189,43 +189,42 @@
 
             accounts.forEach(acc => {
                 const card = document.createElement('div');
-                // Card maior, espaçoso e com estilo vidro fumê translúcido
-                card.className = "bg-zinc-950/40 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-6 flex items-center gap-5 relative shadow-2xl hover:border-zinc-700 transition-all";
+                // Estilo banner horizontal translúcido com cantos bem arredondados idêntico ao modelo
+                card.className = "bg-zinc-950/30 backdrop-blur-2xl border border-zinc-800/60 rounded-3xl p-5 flex items-center gap-5 relative shadow-2xl hover:border-zinc-700 transition-all";
                 
                 const badgeFile = acc.status_message || 'active_developer.png';
                 const badgeImg = `badges/${badgeFile}`;
                 const badgeName = getBadgeTitle(badgeFile);
 
                 card.innerHTML = `
+                    <!-- Avatar circular à esquerda -->
                     <div class="relative shrink-0">
-                        <img src="${acc.avatar}" alt="${acc.display_name}" class="w-20 h-20 rounded-full object-cover ring-2 ring-zinc-700">
-                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-white rounded-full border-2 border-black"></div>
+                        <img src="${acc.avatar}" alt="${acc.display_name}" class="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-800">
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2.5 flex-wrap mb-1.5">
+
+                    <!-- Informações centralizadas/alinhadas à esquerda -->
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <!-- Linha Superior: Nome + Badge logo ao lado -->
+                        <div class="flex items-center gap-2 mb-1">
                             <span class="font-bold text-white text-lg tracking-tight truncate">${acc.display_name}</span>
-                            <i class="fa-solid fa-globe text-zinc-500 text-xs" title="Perfil Público"></i>
-                            <i class="fa-solid fa-desktop text-zinc-300 text-xs" title="Conectado via Desktop"></i>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-zinc-400 text-sm tracking-wide">@${acc.username}</span>
                             
-                            <!-- Container da Badge com Tooltip Flutuante estilo Discord -->
-                            <div class="relative group cursor-pointer">
-                                <div class="flex items-center justify-center p-2 rounded-xl bg-black/60 border border-zinc-800 shadow-inner hover:border-zinc-600 transition-all">
-                                    <img src="${badgeImg}" class="w-6 h-6 object-contain" alt="Badge" onerror="this.src='badges/active_developer.png'">
-                                </div>
+                            <!-- Badge com Tooltip ao passar o mouse -->
+                            <div class="relative group cursor-pointer inline-flex items-center">
+                                <img src="${badgeImg}" class="w-5 h-5 object-contain" alt="Badge" onerror="this.src='badges/active_developer.png'">
                                 
-                                <!-- Pop-up Tooltip flutuante -->
-                                <div class="absolute bottom-full right-0 mb-3 hidden group-hover:flex flex-col items-center z-30 pointer-events-none w-56 p-4 rounded-2xl bg-[#111214] border border-zinc-800 shadow-2xl text-center">
+                                <!-- Pop-up Tooltip flutuante estilo Discord -->
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover:flex flex-col items-center z-30 pointer-events-none w-56 p-4 rounded-2xl bg-[#111214] border border-zinc-800 shadow-2xl text-center">
                                     <img src="${badgeImg}" class="w-16 h-16 object-contain mb-3 drop-shadow-md">
                                     <span class="font-black text-white text-base tracking-wider uppercase mb-1">${badgeName}</span>
                                     <span class="text-zinc-400 text-xs">Membro Verificado no Mural</span>
                                     <!-- Seta do Tooltip -->
-                                    <div class="absolute top-full right-4 -mt-px border-8 border-transparent border-t-[#111214]"></div>
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-[#111214]"></div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Linha Inferior: Subtítulo / Username / Bio -->
+                        <span class="text-zinc-400 text-sm tracking-wide truncate">@${acc.username}</span>
                     </div>
                 `;
                 grid.appendChild(card);
