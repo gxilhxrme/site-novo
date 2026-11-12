@@ -78,7 +78,6 @@
 
             const discordId = user.id;
             
-            // Extração corrigida baseada no objeto real do Discord
             const displayName = customClaims.global_name || discordData.global_name || discordData.name || 'Usuário';
             const username = discordData.full_name || discordData.preferred_username || 'discord_user';
             
@@ -96,7 +95,7 @@
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // Função de badges (preparada para usar ícones customizados via imagem se preferir)
+        // Função ajustada para carregar as imagens da pasta badges/
         function getDiscordBadges(flags) {
             const numFlags = Number(flags) || 0;
             let badgesHtml = '';
@@ -111,18 +110,18 @@
                 ActiveDeveloper: 1 << 22
             };
 
-            // Exemplo usando ícones do FontAwesome. Quando salvar as imagens na pasta, 
-            // basta trocar para: <img src="badges/active_developer.png" class="w-4 h-4" title="...">
-            if (numFlags & DiscordFlags.Staff) badgesHtml += '<i class="fa-solid fa-shield-halved text-amber-500" title="Discord Staff"></i>';
-            if (numFlags & DiscordFlags.Partner) badgesHtml += '<i class="fa-solid fa-handshake text-indigo-400" title="Discord Partner"></i>';
-            if (numFlags & DiscordFlags.HypeSquadOnlineHouse1) badgesHtml += '<i class="fa-solid fa-house-chimney text-red-400" title="HypeSquad Bravery"></i>';
-            if (numFlags & DiscordFlags.HypeSquadOnlineHouse2) badgesHtml += '<i class="fa-solid fa-house-chimney text-purple-400" title="HypeSquad Brilliance"></i>';
-            if (numFlags & DiscordFlags.HypeSquadOnlineHouse3) badgesHtml += '<i class="fa-solid fa-house-chimney text-green-400" title="HypeSquad Balance"></i>';
-            if (numFlags & DiscordFlags.EarlySupporter) badgesHtml += '<i class="fa-solid fa-gem text-amber-400" title="Early Supporter"></i>';
-            if (numFlags & DiscordFlags.ActiveDeveloper) badgesHtml += '<i class="fa-solid fa-hammer text-green-400" title="Active Developer"></i>';
+            // Cada badge agora carrega o PNG correspondente da pasta badges/
+            if (numFlags & DiscordFlags.Staff) badgesHtml += '<img src="badges/discord_staff.png" class="w-5 h-5 object-contain" title="Discord Staff">';
+            if (numFlags & DiscordFlags.Partner) badgesHtml += '<img src="badges/partnered_server_owner.png" class="w-5 h-5 object-contain" title="Discord Partner">';
+            if (numFlags & DiscordFlags.HypeSquadOnlineHouse1) badgesHtml += '<img src="badges/hypesquad_bravery.png" class="w-5 h-5 object-contain" title="HypeSquad Bravery">';
+            if (numFlags & DiscordFlags.HypeSquadOnlineHouse2) badgesHtml += '<img src="badges/hypesquad_brilliance.png" class="w-5 h-5 object-contain" title="HypeSquad Brilliance">';
+            if (numFlags & DiscordFlags.HypeSquadOnlineHouse3) badgesHtml += '<img src="badges/hypesquad_balance.png" class="w-5 h-5 object-contain" title="HypeSquad Balance">';
+            if (numFlags & DiscordFlags.EarlySupporter) badgesHtml += '<img src="badges/early_supporter.png" class="w-5 h-5 object-contain" title="Early Supporter">';
+            if (numFlags & DiscordFlags.ActiveDeveloper) badgesHtml += '<img src="badges/active_developer.png" class="w-5 h-5 object-contain" title="Active Developer">';
 
+            // Caso o usuário não possua nenhuma das badges principais acima, exibe um ícone padrão sutil
             if (!badgesHtml) {
-                badgesHtml = '<i class="fa-solid fa-check text-zinc-400" title="Membro Verificado"></i>';
+                badgesHtml = '<i class="fa-solid fa-check text-zinc-400 text-xs" title="Membro Verificado"></i>';
             }
 
             return badgesHtml;
@@ -160,17 +159,17 @@
                         <div class="absolute bottom-0 right-0 w-4 h-4 bg-discordGreen rounded-full border-2 border-cardBg"></div>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <!-- Linha Superior: Display Name real (gui) + Ícones de status -->
+                        <!-- Linha Superior: Display Name + Ícones de status -->
                         <div class="flex items-center gap-2 flex-wrap mb-1">
                             <span class="font-bold text-white text-base truncate">${acc.display_name}</span>
                             <i class="fa-solid fa-globe text-zinc-400 text-xs" title="Perfil Público"></i>
                             <i class="fa-solid fa-desktop text-discordGreen text-xs" title="Conectado via Desktop"></i>
                         </div>
                         
-                        <!-- Linha Inferior: Username (@october8888) + Badges -->
+                        <!-- Linha Inferior: Username + Badges Reais em Imagem -->
                         <div class="flex items-center justify-between">
                             <span class="text-zinc-400 text-xs tracking-wide">@${acc.username}</span>
-                            <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-xs shadow-inner">
+                            <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 shadow-inner">
                                 ${realBadges}
                             </div>
                         </div>
