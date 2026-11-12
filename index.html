@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mural de Contas</title>
+    <title>vnzz viado</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -13,22 +13,22 @@
 </head>
 <body class="bg-black text-white min-h-screen font-sans antialiased selection:bg-zinc-800 selection:text-white">
 
-    <main class="max-w-4xl mx-auto px-4 py-12">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-10">
+    <main class="max-w-5xl mx-auto px-4 py-16">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-12">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight mb-1 text-white">Mural de Contas</h1>
-                <p class="text-zinc-400 text-sm">Contas verificadas via Discord.</p>
+                <h1 class="text-4xl font-extrabold tracking-tight mb-2 text-white">Mural de Contas</h1>
+                <p class="text-zinc-400 text-base">Contas verificadas via Discord.</p>
             </div>
             <div class="flex items-center gap-3">
-                <!-- Botão de gerenciar badges (aparece apenas se houver sessão ativa) -->
-                <button id="configBtn" onclick="openBadgeModal()" class="hidden bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2.5 rounded-xl font-medium text-sm transition-all shadow-lg items-center gap-2 cursor-pointer backdrop-blur-md">
+                <button id="configBtn" onclick="openBadgeModal()" class="hidden bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-4 py-3 rounded-2xl font-medium text-sm transition-all shadow-lg items-center gap-2 cursor-pointer backdrop-blur-md">
                     <i class="fa-solid fa-gear"></i> Escolher Badges
                 </button>
             </div>
         </div>
 
-        <div id="accountsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <p class="text-zinc-600 col-span-2 text-center py-8">Carregando mural...</p>
+        <!-- Grid com cards maiores -->
+        <div id="accountsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="text-zinc-600 col-span-2 text-center py-12">Carregando mural...</p>
         </div>
     </main>
 
@@ -40,27 +40,27 @@
             
             <div class="grid grid-cols-2 gap-2 mb-6">
                 <label class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/60 cursor-pointer hover:border-zinc-600 transition-all">
-                    <input type="radio" name="badgeSelect" value="active_developer.png" class="accent-white">
+                    <input type="radio" name="badgeSelect" value="active_developer.png" data-name="Active Developer" class="accent-white">
                     <span class="text-sm font-medium flex items-center gap-2"><img src="badges/active_developer.png" class="w-4 h-4 object-contain"> Active Developer</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/60 cursor-pointer hover:border-zinc-600 transition-all">
-                    <input type="radio" name="badgeSelect" value="early_supporter.png" class="accent-white">
+                    <input type="radio" name="badgeSelect" value="early_supporter.png" data-name="Early Supporter" class="accent-white">
                     <span class="text-sm font-medium flex items-center gap-2"><img src="badges/early_supporter.png" class="w-4 h-4 object-contain"> Early Supporter</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/60 cursor-pointer hover:border-zinc-600 transition-all">
-                    <input type="radio" name="badgeSelect" value="hypesquad_bravery.png" class="accent-white">
+                    <input type="radio" name="badgeSelect" value="hypesquad_bravery.png" data-name="HypeSquad Bravery" class="accent-white">
                     <span class="text-sm font-medium flex items-center gap-2"><img src="badges/hypesquad_bravery.png" class="w-4 h-4 object-contain"> Bravery</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/60 cursor-pointer hover:border-zinc-600 transition-all">
-                    <input type="radio" name="badgeSelect" value="hypesquad_brilliance.png" class="accent-white">
+                    <input type="radio" name="badgeSelect" value="hypesquad_brilliance.png" data-name="HypeSquad Brilliance" class="accent-white">
                     <span class="text-sm font-medium flex items-center gap-2"><img src="badges/hypesquad_brilliance.png" class="w-4 h-4 object-contain"> Brilliance</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/60 cursor-pointer hover:border-zinc-600 transition-all">
-                    <input type="radio" name="badgeSelect" value="hypesquad_balance.png" class="accent-white">
+                    <input type="radio" name="badgeSelect" value="hypesquad_balance.png" data-name="HypeSquad Balance" class="accent-white">
                     <span class="text-sm font-medium flex items-center gap-2"><img src="badges/hypesquad_balance.png" class="w-4 h-4 object-contain"> Balance</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/60 cursor-pointer hover:border-zinc-600 transition-all">
-                    <input type="radio" name="badgeSelect" value="discord_staff.png" class="accent-white">
+                    <input type="radio" name="badgeSelect" value="discord_staff.png" data-name="Discord Staff" class="accent-white">
                     <span class="text-sm font-medium flex items-center gap-2"><img src="badges/discord_staff.png" class="w-4 h-4 object-contain"> Discord Staff</span>
                 </label>
             </div>
@@ -74,7 +74,7 @@
 
     <script>
         const SUPABASE_URL = 'https://wujmkknhhakumzunpxbb.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_A5d5aQYNLel7HySmJ4yzPA_i7SyeYjD'; 
+        const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_PUBLICA_AQUI'; 
         
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUserDiscordId = null;
@@ -148,6 +148,18 @@
             loadAccounts();
         }
 
+        function getBadgeTitle(filename) {
+            const map = {
+                'active_developer.png': 'Active Developer',
+                'early_supporter.png': 'Early Supporter',
+                'hypesquad_bravery.png': 'HypeSquad Bravery',
+                'hypesquad_brilliance.png': 'HypeSquad Brilliance',
+                'hypesquad_balance.png': 'HypeSquad Balance',
+                'discord_staff.png': 'Discord Staff'
+            };
+            return map[filename] || 'Membro Verificado';
+        }
+
         async function loadAccounts() {
             const grid = document.getElementById('accountsGrid');
 
@@ -164,7 +176,7 @@
             grid.innerHTML = '';
             
             if (!accounts || accounts.length === 0) {
-                grid.innerHTML = '<p class="text-zinc-600 col-span-2 text-center py-8">Nenhuma conta verificada ainda.</p>';
+                grid.innerHTML = '<p class="text-zinc-600 col-span-2 text-center py-12">Nenhuma conta verificada ainda.</p>';
                 return;
             }
 
@@ -177,25 +189,41 @@
 
             accounts.forEach(acc => {
                 const card = document.createElement('div');
-                card.className = "bg-zinc-950/40 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-4 flex items-center gap-4 relative shadow-2xl hover:border-zinc-700 transition-all";
+                // Card maior, espaçoso e com estilo vidro fumê translúcido
+                card.className = "bg-zinc-950/40 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-6 flex items-center gap-5 relative shadow-2xl hover:border-zinc-700 transition-all";
                 
-                const badgeImg = acc.status_message ? `badges/${acc.status_message}` : 'badges/active_developer.png';
+                const badgeFile = acc.status_message || 'active_developer.png';
+                const badgeImg = `badges/${badgeFile}`;
+                const badgeName = getBadgeTitle(badgeFile);
 
                 card.innerHTML = `
                     <div class="relative shrink-0">
-                        <img src="${acc.avatar}" alt="${acc.display_name}" class="w-16 h-16 rounded-full object-cover ring-1 ring-zinc-700">
-                        <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-white rounded-full border-2 border-black"></div>
+                        <img src="${acc.avatar}" alt="${acc.display_name}" class="w-20 h-20 rounded-full object-cover ring-2 ring-zinc-700">
+                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-white rounded-full border-2 border-black"></div>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
-                            <span class="font-bold text-white text-base truncate">${acc.display_name}</span>
+                        <div class="flex items-center gap-2.5 flex-wrap mb-1.5">
+                            <span class="font-bold text-white text-lg tracking-tight truncate">${acc.display_name}</span>
                             <i class="fa-solid fa-globe text-zinc-500 text-xs" title="Perfil Público"></i>
                             <i class="fa-solid fa-desktop text-zinc-300 text-xs" title="Conectado via Desktop"></i>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-zinc-400 text-xs tracking-wide">@${acc.username}</span>
-                            <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/40 border border-zinc-800/80 shadow-inner">
-                                <img src="${badgeImg}" class="w-4 h-4 object-contain" alt="Badge" onerror="this.src='badges/active_developer.png'">
+                            <span class="text-zinc-400 text-sm tracking-wide">@${acc.username}</span>
+                            
+                            <!-- Container da Badge com Tooltip Flutuante estilo Discord -->
+                            <div class="relative group cursor-pointer">
+                                <div class="flex items-center justify-center p-2 rounded-xl bg-black/60 border border-zinc-800 shadow-inner hover:border-zinc-600 transition-all">
+                                    <img src="${badgeImg}" class="w-6 h-6 object-contain" alt="Badge" onerror="this.src='badges/active_developer.png'">
+                                </div>
+                                
+                                <!-- Pop-up Tooltip flutuante -->
+                                <div class="absolute bottom-full right-0 mb-3 hidden group-hover:flex flex-col items-center z-30 pointer-events-none w-56 p-4 rounded-2xl bg-[#111214] border border-zinc-800 shadow-2xl text-center">
+                                    <img src="${badgeImg}" class="w-16 h-16 object-contain mb-3 drop-shadow-md">
+                                    <span class="font-black text-white text-base tracking-wider uppercase mb-1">${badgeName}</span>
+                                    <span class="text-zinc-400 text-xs">Membro Verificado no Mural</span>
+                                    <!-- Seta do Tooltip -->
+                                    <div class="absolute top-full right-4 -mt-px border-8 border-transparent border-t-[#111214]"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
