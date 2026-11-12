@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mural de Contas</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
@@ -30,7 +33,8 @@
                 <h1 class="text-3xl font-bold tracking-tight mb-1">Mural de Contas</h1>
                 <p class="text-zinc-400 text-sm">Contas verificadas via Discord.</p>
             </div>
-            <button onclick="loginWithDiscord()" class="bg-discordBlurple hover:bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-lg flex items-center gap-2 cursor-pointer">
+            <!-- Chamada direta via onclick com window garantido -->
+            <button onclick="window.loginWithDiscord()" class="bg-discordBlurple hover:bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-lg flex items-center gap-2 cursor-pointer">
                 <i class="fa-brands fa-discord text-lg"></i> Verificar com Discord
             </button>
         </div>
@@ -41,13 +45,19 @@
     </main>
 
     <script>
-        // Inicialização única do Supabase
+        // Substitua pelas suas credenciais reais do Supabase
         const SUPABASE_URL = 'SUA_SUPABASE_URL';
         const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Inicialização protegida contra re-declaração
+        if (!window.supabaseClient) {
+            window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        const db = window.supabaseClient;
 
-        async function loginWithDiscord() {
-            const { error } = await supabase.auth.signInWithOAuth({
+        // Torna a função global explicitamente acessível
+        window.loginWithDiscord = async function() {
+            const { error } = await db.auth.signInWithOAuth({
                 provider: 'discord',
                 options: {
                     redirectTo: window.location.origin
@@ -56,16 +66,15 @@
             if (error) {
                 alert('Erro ao iniciar login: ' + error.message);
             }
-        }
+        };
 
         async function handleAuthCallback() {
-            // Se houver erro na URL, limpa e sai
             if (window.location.search.includes('error=')) {
                 window.history.replaceState({}, document.title, window.location.pathname);
                 return;
             }
 
-            const { data: { session }, error } = await supabase.auth.getSession();
+            const { data: { session }, error } = await db.auth.getSession();
             
             if (error || !session || !session.user) return;
 
@@ -78,7 +87,7 @@
             const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
 
             // Salva ou atualiza a conta no banco
-            const { error: dbError } = await supabase.from('verified_accounts').upsert({
+            const { error: dbError } = await db.from('verified_accounts').upsert({
                 discord_id: discordId,
                 display_name: displayName,
                 username: username,
@@ -95,7 +104,7 @@
         async function loadAccounts() {
             const grid = document.getElementById('accountsGrid');
 
-            const { data: accounts, error } = await supabase
+            const { data: accounts, error } = await db
                 .from('verified_accounts')
                 .select('*')
                 .order('created_at', { ascending: false });
