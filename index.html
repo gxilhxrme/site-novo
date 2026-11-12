@@ -96,36 +96,36 @@
         }
 
         // Função ajustada para carregar as imagens da pasta badges/
-        function getDiscordBadges(flags) {
-            const numFlags = Number(flags) || 0;
-            let badgesHtml = '';
-            
-            const DiscordFlags = {
-                Staff: 1 << 0,
-                Partner: 1 << 1,
-                HypeSquadOnlineHouse1: 1 << 6, // Bravery
-                HypeSquadOnlineHouse2: 1 << 7, // Brilliance
-                HypeSquadOnlineHouse3: 1 << 8, // Balance
-                EarlySupporter: 1 << 9,
-                ActiveDeveloper: 1 << 22
-            };
+function getDiscordBadges(flags) {
+    const numFlags = Number(flags) || 0;
+    console.log("VALOR NUMÉRICO DAS FLAGS DO USUÁRIO:", numFlags); // 👉 Olhe isso no F12 (Console)
+    
+    let badgesHtml = '';
+    
+    const DiscordFlags = {
+        Staff: 1 << 0,
+        Partner: 1 << 1,
+        HypeSquadOnlineHouse1: 1 << 6,
+        HypeSquadOnlineHouse2: 1 << 7,
+        HypeSquadOnlineHouse3: 1 << 8,
+        EarlySupporter: 1 << 9,
+        ActiveDeveloper: 1 << 22
+    };
 
-            // Cada badge agora carrega o PNG correspondente da pasta badges/
-            if (numFlags & DiscordFlags.Staff) badgesHtml += '<img src="badges/discord_staff.png" class="w-5 h-5 object-contain" title="Discord Staff">';
-            if (numFlags & DiscordFlags.Partner) badgesHtml += '<img src="badges/partnered_server_owner.png" class="w-5 h-5 object-contain" title="Discord Partner">';
-            if (numFlags & DiscordFlags.HypeSquadOnlineHouse1) badgesHtml += '<img src="badges/hypesquad_bravery.png" class="w-5 h-5 object-contain" title="HypeSquad Bravery">';
-            if (numFlags & DiscordFlags.HypeSquadOnlineHouse2) badgesHtml += '<img src="badges/hypesquad_brilliance.png" class="w-5 h-5 object-contain" title="HypeSquad Brilliance">';
-            if (numFlags & DiscordFlags.HypeSquadOnlineHouse3) badgesHtml += '<img src="badges/hypesquad_balance.png" class="w-5 h-5 object-contain" title="HypeSquad Balance">';
-            if (numFlags & DiscordFlags.EarlySupporter) badgesHtml += '<img src="badges/early_supporter.png" class="w-5 h-5 object-contain" title="Early Supporter">';
-            if (numFlags & DiscordFlags.ActiveDeveloper) badgesHtml += '<img src="badges/active_developer.png" class="w-5 h-5 object-contain" title="Active Developer">';
+    if (numFlags & DiscordFlags.Staff) badgesHtml += '<img src="badges/discord_staff.png" class="w-5 h-5 object-contain" title="Discord Staff">';
+    if (numFlags & DiscordFlags.Partner) badgesHtml += '<img src="badges/partnered_server_owner.png" class="w-5 h-5 object-contain" title="Discord Partner">';
+    if (numFlags & DiscordFlags.HypeSquadOnlineHouse1) badgesHtml += '<img src="badges/hypesquad_bravery.png" class="w-5 h-5 object-contain" title="HypeSquad Bravery">';
+    if (numFlags & DiscordFlags.HypeSquadOnlineHouse2) badgesHtml += '<img src="badges/hypesquad_brilliance.png" class="w-5 h-5 object-contain" title="HypeSquad Brilliance">';
+    if (numFlags & DiscordFlags.HypeSquadOnlineHouse3) badgesHtml += '<img src="badges/hypesquad_balance.png" class="w-5 h-5 object-contain" title="HypeSquad Balance">';
+    if (numFlags & DiscordFlags.EarlySupporter) badgesHtml += '<img src="badges/early_supporter.png" class="w-5 h-5 object-contain" title="Early Supporter">';
+    if (numFlags & DiscordFlags.ActiveDeveloper) badgesHtml += '<img src="badges/active_developer.png" class="w-5 h-5 object-contain" title="Active Developer">';
 
-            // Caso o usuário não possua nenhuma das badges principais acima, exibe um ícone padrão sutil
-            if (!badgesHtml) {
-                badgesHtml = '<i class="fa-solid fa-check text-zinc-400 text-xs" title="Membro Verificado"></i>';
-            }
+    if (!badgesHtml) {
+        badgesHtml = '<i class="fa-solid fa-check text-zinc-400 text-xs" title="Membro Verificado"></i>';
+    }
 
-            return badgesHtml;
-        }
+    return badgesHtml;
+}
 
         async function loadAccounts() {
             const grid = document.getElementById('accountsGrid');
