@@ -52,8 +52,7 @@ async function loginWithDiscord() {
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-            // window.location.origin pega automaticamente a URL da Vercel ou seu domínio próprio
-            redirectTo: window.location.origin
+            redirectTo: window.location.origin // Pega automaticamente o link da sua Vercel (ou o seu domínio próprio)
         }
     });
     if (error) alert('Erro ao entrar: ' + error.message);
