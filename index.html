@@ -62,38 +62,50 @@
             }
         };
 
-        async function handleAuthCallback() {
-            if (window.location.search.includes('error=')) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                return;
-            }
+async function handleAuthCallback() {
+    if (window.location.search.includes('error=')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
 
-            const { data: { session }, error } = await db.auth.getSession();
-            
-            if (error || !session || !session.user) return;
+    const { data: { session }, error } = await db.auth.getSession();
+    
+    if (error || !session || !session.user) return;
 
-            const user = session.user;
-            const discordData = user.user_metadata || {};
+    const user = session.user;
+    const discordData = user.user_metadata || {};
 
-            const discordId = user.id;
-            
-            // Correção da extração: Pega o Display Name real (global_name) e o username técnico
-            const displayName = discordData.custom_claim?.global_name || discordData.global_name || discordData.name || discordData.full_name || 'Usuário';
-            const username = discordData.preferred_username || discordData.custom_claim?.username || discordData.user_name || discordData.name || 'discord_user';
-            const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            
-            const flags = discordData.public_flags || discordData.flags || 0;
+    // 👉 ABRA O CONSOLE (F12) PARA VER ESSES DADOS EXATAMENTE COMO O DISCORD OS ENVIA:
+    console.log("DADOS COMPLETOS DO DISCORD:", discordData);
 
-            await db.from('verified_accounts').upsert({
-                discord_id: discordId,
-                display_name: displayName,
-                username: username,
-                avatar: avatar,
-                status_message: String(flags)
-            }, { onConflict: 'discord_id' });
+    const discordId = user.id;
 
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
+    // Buscamos em todas as propriedades possíveis onde o Discord costuma injetar o Display Name
+    const displayName = discordData.custom_claim?.global_name || 
+                        discordData.global_name || 
+                        discordData.name || 
+                        discordData.full_name || 
+                        discordData.preferred_username || 
+                        'Usuário';
+
+    const username = discordData.custom_claim?.username || 
+                     discordData.preferred_username || 
+                     discordData.user_name || 
+                     'discord_user';
+
+    const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
+    const flags = discordData.public_flags || discordData.flags || 0;
+
+    await db.from('verified_accounts').upsert({
+        discord_id: discordId,
+        display_name: displayName,
+        username: username,
+        avatar: avatar,
+        status_message: String(flags)
+    }, { onConflict: 'discord_id' });
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
 
         // Função para gerar os emblemas reais do Discord com base nas flags
         function getDiscordBadges(flags) {
