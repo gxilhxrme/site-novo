@@ -14,16 +14,11 @@
 <body class="bg-black text-white min-h-screen font-sans antialiased selection:bg-zinc-800 selection:text-white">
 
     <main class="max-w-4xl mx-auto px-4 py-16">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-12">
-            <div>
-                <h1 class="text-4xl font-extrabold tracking-tight mb-2 text-white">Mural de Contas</h1>
-                <p class="text-zinc-400 text-base">Contas verificadas via Discord.</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="configBtn" onclick="openBadgeModal()" class="hidden bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-4 py-3 rounded-2xl font-medium text-sm transition-all shadow-lg items-center gap-2 cursor-pointer backdrop-blur-md">
-                    <i class="fa-solid fa-gear"></i> Escolher Badges
-                </button>
-            </div>
+        <!-- O cabeçalho foi removido daqui para deixar a tela limpa -->
+        <div class="flex justify-end mb-8">
+            <button id="configBtn" onclick="openBadgeModal()" class="hidden bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-4 py-3 rounded-2xl font-medium text-sm transition-all shadow-lg items-center gap-2 cursor-pointer backdrop-blur-md">
+                <i class="fa-solid fa-gear"></i> Escolher Badges
+            </button>
         </div>
 
         <!-- Grid de cards estilo banner horizontal -->
@@ -74,7 +69,7 @@
 
     <script>
         const SUPABASE_URL = 'https://wujmkknhhakumzunpxbb.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_A5d5aQYNLel7HySmJ4yzPA_i7SyeYjD'; 
+        const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_PUBLICA_AQUI'; 
         
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUserDiscordId = null;
@@ -189,7 +184,6 @@
 
             accounts.forEach(acc => {
                 const card = document.createElement('div');
-                // Estilo banner horizontal translúcido com cantos bem arredondados idêntico ao modelo
                 card.className = "bg-zinc-950/30 backdrop-blur-2xl border border-zinc-800/60 rounded-3xl p-5 flex items-center gap-5 relative shadow-2xl hover:border-zinc-700 transition-all";
                 
                 const badgeFile = acc.status_message || 'active_developer.png';
@@ -197,33 +191,26 @@
                 const badgeName = getBadgeTitle(badgeFile);
 
                 card.innerHTML = `
-                    <!-- Avatar circular à esquerda -->
                     <div class="relative shrink-0">
                         <img src="${acc.avatar}" alt="${acc.display_name}" class="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-800">
                     </div>
 
-                    <!-- Informações centralizadas/alinhadas à esquerda -->
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
-                        <!-- Linha Superior: Nome + Badge logo ao lado -->
                         <div class="flex items-center gap-2 mb-1">
                             <span class="font-bold text-white text-lg tracking-tight truncate">${acc.display_name}</span>
                             
-                            <!-- Badge com Tooltip ao passar o mouse -->
                             <div class="relative group cursor-pointer inline-flex items-center">
                                 <img src="${badgeImg}" class="w-5 h-5 object-contain" alt="Badge" onerror="this.src='badges/active_developer.png'">
                                 
-                                <!-- Pop-up Tooltip flutuante estilo Discord -->
                                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover:flex flex-col items-center z-30 pointer-events-none w-56 p-4 rounded-2xl bg-[#111214] border border-zinc-800 shadow-2xl text-center">
                                     <img src="${badgeImg}" class="w-16 h-16 object-contain mb-3 drop-shadow-md">
                                     <span class="font-black text-white text-base tracking-wider uppercase mb-1">${badgeName}</span>
                                     <span class="text-zinc-400 text-xs">Membro Verificado no Mural</span>
-                                    <!-- Seta do Tooltip -->
                                     <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-[#111214]"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Linha Inferior: Subtítulo / Username / Bio -->
                         <span class="text-zinc-400 text-sm tracking-wide truncate">@${acc.username}</span>
                     </div>
                 `;
