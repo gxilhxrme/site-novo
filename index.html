@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>-_-</title>
+    <title>Mural de Contas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
@@ -26,68 +25,84 @@
 <body class="bg-black text-white min-h-screen font-sans antialiased">
 
     <main class="max-w-4xl mx-auto px-4 py-12">
-        <div class="flex justify-between items-center mb-10">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-10">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight mb-1">Mural de Contas</h1>
                 <p class="text-zinc-400 text-sm">Contas verificadas via Discord.</p>
             </div>
-            <button onclick="loginWithDiscord()" class="bg-discordBlurple hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2">
-                <i class="fa-brands fa-discord"></i> Verificar com Discord
+            <button onclick="loginWithDiscord()" class="bg-discordBlurple hover:bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-lg flex items-center gap-2 cursor-pointer">
+                <i class="fa-brands fa-discord text-lg"></i> Verificar com Discord
             </button>
         </div>
 
-        <!-- Grade de 2 Colunas -->
         <div id="accountsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Cards injetados via JS -->
+            <p class="text-zinc-500 col-span-2 text-center py-8">Carregando mural...</p>
         </div>
     </main>
 
     <script>
-        // Substitua pelas suas credenciais do Supabase
+        // ATENÇÃO: Substitua pelos seus dados reais do Supabase
         const SUPABASE_URL = 'SUA_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = ' SUA_SUPABASE_ANON_KEY';
+        const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
+        
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function loginWithDiscord() {
-    const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'discord',
-        options: {
-            redirectTo: window.location.origin // Pega automaticamente o link da sua Vercel (ou o seu domínio próprio)
+        async function loginWithDiscord() {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'discord',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) {
+                alert('Erro ao iniciar login: ' + error.message);
+            }
         }
-    });
-    if (error) alert('Erro ao entrar: ' + error.message);
-}
 
         async function handleAuthCallback() {
-            // Verifica se o usuário acabou de voltar do login do Discord
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session && session.user) {
-                const user = session.user;
-                const discordData = user.user_metadata;
-
-                // Dados do usuário obtidos do Discord OAuth
-                const discordId = user.id;
-                const displayName = discordData.full_name || discordData.name || 'Usuário';
-                const username = discordData.preferred_username || discordData.custom_claim?.global_name || 'discord_user';
-                const avatar = discordData.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
-
-                // Salva ou atualiza no banco de dados do Supabase
-                await supabase.from('verified_accounts').upsert({
-                    discord_id: discordId,
-                    display_name: displayName,
-                    username: username,
-                    avatar: avatar
-                }, { onConflict: 'discord_id' });
-
-                // Limpa a URL para remover os parâmetros de auth
-                window.history.replaceState({}, document.title, window.location.pathname);
-                loadAccounts();
+            // Pega a sessão após voltar do Discord
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (error) {
+                console.error("Erro ao resgatar sessão:", error);
+                return;
             }
+
+            if (!session || !session.user) {
+                console.log("Nenhuma sessão ativa encontrada.");
+                return;
+            }
+
+            const user = session.user;
+            console.log("Usuário logado com sucesso:", user);
+
+            const discordData = user.user_metadata || {};
+            const discordId = user.id;
+            const displayName = discordData.full_name || discordData.name || discordData.custom_claim?.global_name || 'Usuário';
+            const username = discordData.preferred_username || discordData.custom_claim?.global_name || 'discord_user';
+            const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+            // Tenta salvar no banco e loga o resultado exato
+            const { data, error: dbError } = await supabase.from('verified_accounts').upsert({
+                discord_id: discordId,
+                display_name: displayName,
+                username: username,
+                avatar: avatar
+            }, { onConflict: 'discord_id' }).select();
+
+            if (dbError) {
+                console.error("ERRO CRÍTICO AO SALVAR NO BANCO:", dbError);
+                alert("Erro ao salvar no banco: " + dbError.message);
+            } else {
+                console.log("Salvo com sucesso no banco:", data);
+            }
+
+            // Limpa a URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
 
         async function loadAccounts() {
             const grid = document.getElementById('accountsGrid');
-            grid.innerHTML = '<p class="text-zinc-500 col-span-2 text-center py-4">Carregando mural...</p>';
 
             const { data: accounts, error } = await supabase
                 .from('verified_accounts')
@@ -95,13 +110,14 @@ async function loginWithDiscord() {
                 .order('created_at', { ascending: false });
 
             if (error) {
-                grid.innerHTML = '<p class="text-red-500 col-span-2 text-center">Erro ao carregar contas.</p>';
+                grid.innerHTML = `<p class="text-red-500 col-span-2 text-center py-4">Erro ao carregar contas: ${error.message}</p>`;
                 return;
             }
 
             grid.innerHTML = '';
-            if (accounts.length === 0) {
-                grid.innerHTML = '<p class="text-zinc-500 col-span-2 text-center py-4">Nenhuma conta verificada ainda.</p>';
+            
+            if (!accounts || accounts.length === 0) {
+                grid.innerHTML = '<p class="text-zinc-500 col-span-2 text-center py-8">Nenhuma conta verificada ainda.</p>';
                 return;
             }
 
@@ -120,7 +136,7 @@ async function loginWithDiscord() {
                             <i class="fa-solid fa-desktop text-discordGreen text-xs" title="Conectado via Desktop"></i>
                             <div class="relative ml-auto sm:ml-2 bg-[#232428] text-zinc-200 text-xs px-3 py-1.5 rounded-lg border border-zinc-700/50 shadow-sm flex items-center gap-1.5 shrink-0">
                                 <span class="text-zinc-400">+</span>
-                                <span class="italic font-medium">${acc.status_message}</span>
+                                <span class="italic font-medium">${acc.status_message || '+ NPC favorito?'}</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -137,7 +153,7 @@ async function loginWithDiscord() {
 
         document.addEventListener('DOMContentLoaded', async () => {
             await handleAuthCallback();
-            loadAccounts();
+            await loadAccounts();
         });
     </script>
 </body>
