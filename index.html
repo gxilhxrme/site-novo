@@ -46,7 +46,7 @@
     <script>
         // Insira sua chave anônima pública do Supabase abaixo:
         const SUPABASE_URL = 'https://wujmkknhhakumzunpxbb.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_A5d5aQYNLel7HySmJ4yzPA_i7SyeYjD'; 
+        const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_PUBLICA_AQUI'; 
         
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -62,52 +62,41 @@
             }
         };
 
-async function handleAuthCallback() {
-    if (window.location.search.includes('error=')) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return;
-    }
+        async function handleAuthCallback() {
+            if (window.location.search.includes('error=')) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return;
+            }
 
-    const { data: { session }, error } = await db.auth.getSession();
-    
-    if (error || !session || !session.user) return;
+            const { data: { session }, error } = await db.auth.getSession();
+            
+            if (error || !session || !session.user) return;
 
-    const user = session.user;
-    const discordData = user.user_metadata || {};
+            const user = session.user;
+            const discordData = user.user_metadata || {};
+            const customClaims = discordData.custom_claims || discordData.custom_claim || {};
 
-    // 👉 ABRA O CONSOLE (F12) PARA VER ESSES DADOS EXATAMENTE COMO O DISCORD OS ENVIA:
-    console.log("DADOS COMPLETOS DO DISCORD:", discordData);
+            const discordId = user.id;
+            
+            // Extração corrigida baseada no objeto real do Discord
+            const displayName = customClaims.global_name || discordData.global_name || discordData.name || 'Usuário';
+            const username = discordData.full_name || discordData.preferred_username || 'discord_user';
+            
+            const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const flags = discordData.public_flags || discordData.flags || 0;
 
-    const discordId = user.id;
+            await db.from('verified_accounts').upsert({
+                discord_id: discordId,
+                display_name: displayName,
+                username: username,
+                avatar: avatar,
+                status_message: String(flags)
+            }, { onConflict: 'discord_id' });
 
-    // Buscamos em todas as propriedades possíveis onde o Discord costuma injetar o Display Name
-    const displayName = discordData.custom_claim?.global_name || 
-                        discordData.global_name || 
-                        discordData.name || 
-                        discordData.full_name || 
-                        discordData.preferred_username || 
-                        'Usuário';
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
 
-    const username = discordData.custom_claim?.username || 
-                     discordData.preferred_username || 
-                     discordData.user_name || 
-                     'discord_user';
-
-    const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
-    const flags = discordData.public_flags || discordData.flags || 0;
-
-    await db.from('verified_accounts').upsert({
-        discord_id: discordId,
-        display_name: displayName,
-        username: username,
-        avatar: avatar,
-        status_message: String(flags)
-    }, { onConflict: 'discord_id' });
-
-    window.history.replaceState({}, document.title, window.location.pathname);
-}
-
-        // Função para gerar os emblemas reais do Discord com base nas flags
+        // Função de badges (preparada para usar ícones customizados via imagem se preferir)
         function getDiscordBadges(flags) {
             const numFlags = Number(flags) || 0;
             let badgesHtml = '';
@@ -122,17 +111,18 @@ async function handleAuthCallback() {
                 ActiveDeveloper: 1 << 22
             };
 
+            // Exemplo usando ícones do FontAwesome. Quando salvar as imagens na pasta, 
+            // basta trocar para: <img src="badges/active_developer.png" class="w-4 h-4" title="...">
             if (numFlags & DiscordFlags.Staff) badgesHtml += '<i class="fa-solid fa-shield-halved text-amber-500" title="Discord Staff"></i>';
             if (numFlags & DiscordFlags.Partner) badgesHtml += '<i class="fa-solid fa-handshake text-indigo-400" title="Discord Partner"></i>';
             if (numFlags & DiscordFlags.HypeSquadOnlineHouse1) badgesHtml += '<i class="fa-solid fa-house-chimney text-red-400" title="HypeSquad Bravery"></i>';
             if (numFlags & DiscordFlags.HypeSquadOnlineHouse2) badgesHtml += '<i class="fa-solid fa-house-chimney text-purple-400" title="HypeSquad Brilliance"></i>';
             if (numFlags & DiscordFlags.HypeSquadOnlineHouse3) badgesHtml += '<i class="fa-solid fa-house-chimney text-green-400" title="HypeSquad Balance"></i>';
             if (numFlags & DiscordFlags.EarlySupporter) badgesHtml += '<i class="fa-solid fa-gem text-amber-400" title="Early Supporter"></i>';
-            if (numFlags & DiscordFlags.ActiveDeveloper) badgesHtml += '<i class="fa-solid fa-code text-zinc-300" title="Active Developer"></i>';
+            if (numFlags & DiscordFlags.ActiveDeveloper) badgesHtml += '<i class="fa-solid fa-hammer text-green-400" title="Active Developer"></i>';
 
-            // Badge padrão caso nenhuma específica seja acionada (exibe a badge verde igual ao seu print)
             if (!badgesHtml) {
-                badgesHtml = '<i class="fa-solid fa-bolt text-green-400" title="Verificado"></i>';
+                badgesHtml = '<i class="fa-solid fa-check text-zinc-400" title="Membro Verificado"></i>';
             }
 
             return badgesHtml;
@@ -170,14 +160,14 @@ async function handleAuthCallback() {
                         <div class="absolute bottom-0 right-0 w-4 h-4 bg-discordGreen rounded-full border-2 border-cardBg"></div>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <!-- Linha Superior: Display Name + Ícones de Status -->
+                        <!-- Linha Superior: Display Name real (gui) + Ícones de status -->
                         <div class="flex items-center gap-2 flex-wrap mb-1">
                             <span class="font-bold text-white text-base truncate">${acc.display_name}</span>
                             <i class="fa-solid fa-globe text-zinc-400 text-xs" title="Perfil Público"></i>
                             <i class="fa-solid fa-desktop text-discordGreen text-xs" title="Conectado via Desktop"></i>
                         </div>
                         
-                        <!-- Linha Inferior: Username exato (@october8888) + Badges Reais -->
+                        <!-- Linha Inferior: Username (@october8888) + Badges -->
                         <div class="flex items-center justify-between">
                             <span class="text-zinc-400 text-xs tracking-wide">@${acc.username}</span>
                             <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-xs shadow-inner">
