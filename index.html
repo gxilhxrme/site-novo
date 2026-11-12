@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mural de Contas</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
@@ -44,7 +47,7 @@
         // ----------------------------------------------------
         // INSIRA SUAS CREDENCIAIS REAIS DO SUPABASE ABAIXO:
         // ----------------------------------------------------
-        const SUPABASE_URL = 'https://wujmkknhhakumzunpxbb.supabase.co'; // Já preenchido com base nos seus prints anteriores
+        const SUPABASE_URL = 'https://wujmkknhhakumzunpxbb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_A5d5aQYNLel7HySmJ4yzPA_i7SyeYjD'; 
         
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -78,15 +81,53 @@
             const displayName = discordData.full_name || discordData.name || discordData.custom_claim?.global_name || 'Usuário';
             const username = discordData.preferred_username || discordData.custom_claim?.global_name || 'discord_user';
             const avatar = discordData.avatar_url || discordData.picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            
+            // Captura as flags/badges reais enviadas pelo Discord OAuth
+            const flags = discordData.public_flags || discordData.flags || 0;
 
             await db.from('verified_accounts').upsert({
                 discord_id: discordId,
                 display_name: displayName,
                 username: username,
-                avatar: avatar
+                avatar: avatar,
+                status_message: flags // Armazenamos as flags ou status real se preferir
             }, { onConflict: 'discord_id' });
 
             window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Função para traduzir as flags numéricas do Discord em ícones de Badges reais
+        function getDiscordBadges(flags) {
+            if (!flags || isNaN(flags)) return '<span class="text-xs text-zinc-500">Membro Verificado</span>';
+
+            let badgesHtml = '';
+            
+            // Constantes de bitfield de Flags do Discord
+            const DiscordFlags = {
+                Staff: 1 << 0,
+                Partner: 1 << 1,
+                Hypesquad: 1 << 2,
+                HypeSquadOnlineHouse1: 1 << 6, // Bravery
+                HypeSquadOnlineHouse2: 1 << 7, // Brilliance
+                HypeSquadOnlineHouse3: 1 << 8, // Balance
+                EarlySupporter: 1 << 9,
+                ActiveDeveloper: 1 << 22
+            };
+
+            if (flags & DiscordFlags.Staff) badgesHtml += '<i class="fa-solid fa-shield-halved text-amber-500" title="Discord Staff"></i>';
+            if (flags & DiscordFlags.Partner) badgesHtml += '<i class="fa-solid fa-handshake text-indigo-400" title="Discord Partner"></i>';
+            if (flags & DiscordFlags.HypeSquadOnlineHouse1) badgesHtml += '<i class="fa-solid fa-house-chimney text-red-400" title="HypeSquad Bravery"></i>';
+            if (flags & DiscordFlags.HypeSquadOnlineHouse2) badgesHtml += '<i class="fa-solid fa-house-chimney text-purple-400" title="HypeSquad Brilliance"></i>';
+            if (flags & DiscordFlags.HypeSquadOnlineHouse3) badgesHtml += '<i class="fa-solid fa-house-chimney text-green-400" title="HypeSquad Balance"></i>';
+            if (flags & DiscordFlags.EarlySupporter) badgesHtml += '<i class="fa-solid fa-gem text-amber-400" title="Apoiador Early Supporter"></i>';
+            if (flags & DiscordFlags.ActiveDeveloper) badgesHtml += '<i class="fa-solid fa-code text-zinc-300" title="Desenvolvedor Ativo"></i>';
+
+            // Se não tiver nenhuma badge específica das principais, exibe o selo padrão de verificação
+            if (!badgesHtml) {
+                badgesHtml = '<i class="fa-solid fa-bolt text-green-400" title="Conta Verificada"></i>';
+            }
+
+            return badgesHtml;
         }
 
         async function loadAccounts() {
@@ -113,6 +154,9 @@
                 const card = document.createElement('div');
                 card.className = "bg-cardBg border border-cardBorder rounded-xl p-4 flex items-center gap-4 relative shadow-lg hover:border-zinc-700 transition-all";
                 
+                // Gera as badges reais baseadas no campo salvo
+                const realBadges = getDiscordBadges(Number(acc.status_message));
+
                 card.innerHTML = `
                     <div class="relative shrink-0">
                         <img src="${acc.avatar}" alt="${acc.display_name}" class="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-800">
@@ -122,15 +166,12 @@
                         <div class="flex items-center gap-2 flex-wrap mb-1">
                             <span class="font-bold text-white text-base truncate">${acc.display_name}</span>
                             <i class="fa-solid fa-desktop text-discordGreen text-xs" title="Conectado via Desktop"></i>
-                            <div class="relative ml-auto sm:ml-2 bg-[#232428] text-zinc-200 text-xs px-3 py-1.5 rounded-lg border border-zinc-700/50 shadow-sm flex items-center gap-1.5 shrink-0">
-                                <span class="text-zinc-400">+</span>
-                                <span class="italic font-medium">${acc.status_message || '+ NPC favorito?'}</span>
-                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center justify-between">
                             <span class="text-zinc-400 text-xs tracking-wide">@${acc.username}</span>
-                            <div class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-zinc-900 text-green-400 border border-zinc-800 text-xs shadow-inner">
-                                <i class="fa-solid fa-bolt text-[10px]"></i>
+                            <!-- Exibição das Badges Reais do Discord -->
+                            <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-xs shadow-inner">
+                                ${realBadges}
                             </div>
                         </div>
                     </div>
